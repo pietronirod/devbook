@@ -1,6 +1,9 @@
 package repositorios
 
-import "database/sql"
+import (
+	"api/src/modelos"
+	"database/sql"
+)
 
 // Usuarios representa um repositorio de usuarios
 type Usuarios struct {
@@ -10,4 +13,9 @@ type Usuarios struct {
 // NovoRepositorioDeUsuarios cria um repositorio de usuarios
 func NovoRepositorioDeUsuarios(db *sql.DB) *Usuarios {
 	return &Usuarios{db}
+}
+
+// Criar insere um usuario no banco de dados
+func (u Usuarios) Criar(usuario modelos.Usuario) (uint64, error) {
+	return 0, nil
 }
