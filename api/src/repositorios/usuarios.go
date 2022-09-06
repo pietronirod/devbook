@@ -44,8 +44,8 @@ func (repositorio Usuarios) Buscar(nomeOuNick string) ([]modelos.Usuario, error)
 
 	linhas, erro := repositorio.db.Query(
 		"select id, nome, nick, email, criadoEm from usuarios where nome LIKE ? OR nick LIKE ?",
-		nomeOuNick, nomeOuNick
-	)
+		nomeOuNick,
+		nomeOuNick)
 	if erro != nil {
 		return nil, erro
 	}
@@ -60,8 +60,7 @@ func (repositorio Usuarios) Buscar(nomeOuNick string) ([]modelos.Usuario, error)
 			&usuario.Nome,
 			&usuario.Nick,
 			&usuario.Email,
-			&usuario.CriadoEm
-		); erro != nil {
+			&usuario.CriadoEm); erro != nil {
 			return nil, erro
 		}
 		usuarios = append(usuarios, usuario)
@@ -70,11 +69,10 @@ func (repositorio Usuarios) Buscar(nomeOuNick string) ([]modelos.Usuario, error)
 }
 
 // BuscarPorID traz um usuário do bd
-func (repositorio Usuarios) BuscarPorID (ID uint64) (modelos.Usuario, error) {
+func (repositorio Usuarios) BuscarPorID(ID uint64) (modelos.Usuario, error) {
 	linhas, erro := repositorio.db.Query(
-		'select id, nome, nick, email, criadoEm from usuarios where id = ?',
-		ID
-	)
+		"select id, nome, nick, email, criadoEm from usuarios where id = ?",
+		ID)
 
 	if erro != nil {
 		return modelos.Usuario{}, erro
@@ -83,16 +81,31 @@ func (repositorio Usuarios) BuscarPorID (ID uint64) (modelos.Usuario, error) {
 
 	var usuario modelos.Usuario
 
-	if linhas.Next(){
+	if linhas.Next() {
 		if erro = linhas.Scan(
 			&usuario.ID,
 			&usuario.Nome,
 			&usuario.Nick,
 			&usuario.Email,
-			&usuario.CriadoEm
-		); erro != nil {
+			&usuario.CriadoEm); erro != nil {
 			return modelos.Usuario{}, erro
 		}
 	}
 	return usuario, nil
+}
+
+// Atualizar altera as informacoes de um usuario no banco de dados
+func (repositorio Usuarios) Atualizar(ID uint64, usuario modelos.Usuario) error {
+	statement, erro := repositorio.db.Prepare(
+		"update usuarios set nome = ?, nick = ?, email = ? where id = ?",
+	)
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	if _, erro = statement.Exec(usuario.Nome, usuario.Nick, usuario.Email, ID); erro != nil {
+		return erro
+	}
+	return nil
 }
